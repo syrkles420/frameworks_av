@@ -13,3 +13,18 @@
 # limitations under the License.
 
 include $(call all-subdir-makefiles)
+
+ifneq ($(TARGET_SPECIFIC_CAMERA_PARAMETER_LIBRARY),)
+LOCAL_WHOLE_STATIC_LIBRARIES += $(TARGET_SPECIFIC_CAMERA_PARAMETER_LIBRARY)
+else
+LOCAL_WHOLE_STATIC_LIBRARIES += libcamera_parameters
+endif
+
+include $(CLEAR_VARS)
+
+LOCAL_SRC_FILES := \
+	CameraParameters.cpp
+
+LOCAL_MODULE := libcamera_parameters
+
+include $(BUILD_STATIC_LIBRARY)
