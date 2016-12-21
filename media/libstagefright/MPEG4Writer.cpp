@@ -1911,16 +1911,9 @@ status_t MPEG4Writer::Track::start(MetaData *params) {
     }
 
     int64_t startTimeUs;
-
     if (params == NULL || !params->findInt64(kKeyTime, &startTimeUs)) {
         startTimeUs = 0;
     }
-
-    int64_t startTimeBootUs;
-    if (params == NULL || !params->findInt64(kKeyTimeBoot, &startTimeBootUs)) {
-        startTimeBootUs = 0;
-    }
-
     mStartTimeRealUs = startTimeUs;
 
     int32_t rotationDegrees;
@@ -1931,7 +1924,6 @@ status_t MPEG4Writer::Track::start(MetaData *params) {
     initTrackingProgressStatus(params);
 
     sp<MetaData> meta = new MetaData;
-
     if (mOwner->isRealTimeRecording() && mOwner->numTracks() > 1) {
         /*
          * This extra delay of accepting incoming audio/video signals
@@ -1947,12 +1939,10 @@ status_t MPEG4Writer::Track::start(MetaData *params) {
             startTimeOffsetUs = kInitialDelayTimeUs;
         }
         startTimeUs += startTimeOffsetUs;
-        startTimeBootUs += startTimeOffsetUs;
         ALOGI("Start time offset: %" PRId64 " us", startTimeOffsetUs);
     }
 
     meta->setInt64(kKeyTime, startTimeUs);
-    meta->setInt64(kKeyTimeBoot, startTimeBootUs);
 
     status_t err = mSource->start(meta.get());
     if (err != OK) {
