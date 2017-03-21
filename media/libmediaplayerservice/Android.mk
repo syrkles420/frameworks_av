@@ -48,6 +48,10 @@ LOCAL_STATIC_LIBRARIES :=       \
 
 LOCAL_EXPORT_SHARED_LIBRARY_HEADERS := libmedia
 
+LOCAL_WHOLE_STATIC_LIBRARIES := \
+    libavmediaserviceextensions \
+     libavextensions \
+
 LOCAL_C_INCLUDES :=                                                 \
     frameworks/av/media/libstagefright/include               \
     frameworks/av/media/libstagefright/rtsp                  \
@@ -55,6 +59,7 @@ LOCAL_C_INCLUDES :=                                                 \
     frameworks/av/media/libstagefright/webm                  \
     $(LOCAL_PATH)/include/media                              \
     frameworks/av/include/camera                             \
+	frameworks/av/media/libavextensions                      \
     frameworks/native/include/media/openmax                  \
     frameworks/native/include/media/hardware                 \
     external/tremolo/Tremolo                                 \
@@ -63,7 +68,7 @@ LOCAL_CFLAGS += -Werror -Wno-error=deprecated-declarations -Wall
 
 LOCAL_MODULE:= libmediaplayerservice
 
-LOCAL_32_BIT_ONLY := true
+#LOCAL_32_BIT_ONLY := true
 
 LOCAL_SANITIZE := cfi
 LOCAL_SANITIZE_DIAG := cfi

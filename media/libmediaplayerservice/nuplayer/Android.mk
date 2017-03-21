@@ -17,6 +17,7 @@ LOCAL_SRC_FILES:=                       \
         StreamingSource.cpp             \
 
 LOCAL_C_INCLUDES := \
+    frameworks/av/media/libavextensions                    \
 	frameworks/av/media/libstagefright                     \
 	frameworks/av/media/libstagefright/httplive            \
 	frameworks/av/media/libstagefright/include             \
