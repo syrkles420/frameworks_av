@@ -123,12 +123,9 @@ cc_library_shared {
         "libstagefright_mpeg2ts",
         "libstagefright_id3",
         "libFLAC",
+		"libavextensions",
     ],
 	
-	static_libs: [
-        "libavextensions",
-    ],
-
     export_shared_lib_headers: ["libmedia"],
     export_include_dirs: [
         ".",
