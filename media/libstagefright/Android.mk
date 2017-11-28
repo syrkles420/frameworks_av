@@ -6,4 +6,6 @@ LOCAL_CFLAGS += -DQTI_FLAC_DECODER
 endif
 endif
 
+LOCAL_WHOLE_STATIC_LIBRARIES := libavextensions
+
 include $(call all-makefiles-under,$(LOCAL_PATH))
