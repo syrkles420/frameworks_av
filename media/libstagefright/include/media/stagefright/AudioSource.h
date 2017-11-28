@@ -61,6 +61,7 @@ struct AudioSource : public MediaSource, public MediaBufferObserver {
 protected:
     virtual ~AudioSource();
 
+private:
     enum {
         kMaxBufferSize = 2048,
 
@@ -94,7 +95,6 @@ protected:
     int64_t mNumFramesSkipped;
     int64_t mNumFramesLost;
     int64_t mNumClientOwnedBuffers;
-	size_t mMaxBufferSize;
     bool mNoMoreFramesToRead;
 
     List<MediaBuffer * > mBuffersReceived;
@@ -110,7 +110,7 @@ protected:
     void queueInputBuffer_l(MediaBuffer *buffer, int64_t timeUs);
     void releaseQueuedFrames_l();
     void waitOutstandingEncodingFrames_l();
-    virtual status_t reset();
+    status_t reset();
 
     AudioSource(const AudioSource &);
     AudioSource &operator=(const AudioSource &);

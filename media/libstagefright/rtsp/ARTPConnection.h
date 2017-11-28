@@ -54,6 +54,7 @@ protected:
     virtual ~ARTPConnection();
     virtual void onMessageReceived(const sp<AMessage> &msg);
 
+private:
     enum {
         kWhatAddStream,
         kWhatRemoveStream,

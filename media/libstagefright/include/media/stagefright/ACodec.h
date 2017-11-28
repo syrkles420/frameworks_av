@@ -111,11 +111,8 @@ struct ACodec : public AHierarchicalStateMachine, public CodecBase {
 
 protected:
     virtual ~ACodec();
-    virtual status_t setupCustomCodec(
-            status_t err, const char *mime, const sp<AMessage> &msg);
-    virtual status_t GetVideoCodingTypeFromMime(
-            const char *mime, OMX_VIDEO_CODINGTYPE *codingType);
 
+private:
     struct BaseState;
     struct UninitializedState;
     struct LoadedState;
@@ -368,11 +365,11 @@ protected:
 
     status_t setSupportedOutputFormat(bool getLegacyFlexibleFormat);
 
-    virtual status_t setupVideoDecoder(
+    status_t setupVideoDecoder(
             const char *mime, const sp<AMessage> &msg, bool usingNativeBuffers, bool haveSwRenderer,
             sp<AMessage> &outputformat);
 
-    virtual status_t setupVideoEncoder(
+    status_t setupVideoEncoder(
             const char *mime, const sp<AMessage> &msg,
             sp<AMessage> &outputformat, sp<AMessage> &inputformat);
 
@@ -516,7 +513,7 @@ protected:
             int32_t bitrate, OMX_VIDEO_CONTROLRATETYPE bitrateMode);
     void configureEncoderLatency(const sp<AMessage> &msg);
 
-    virtual status_t setupErrorCorrectionParameters();
+    status_t setupErrorCorrectionParameters();
 
     // Returns true iff all buffers on the given port have status
     // OWNED_BY_US or OWNED_BY_NATIVE_WINDOW.
@@ -556,14 +553,14 @@ protected:
     void addKeyFormatChangesToRenderBufferNotification(sp<AMessage> &notify);
     void sendFormatChange();
 
-    virtual status_t getPortFormat(OMX_U32 portIndex, sp<AMessage> &notify);
+    status_t getPortFormat(OMX_U32 portIndex, sp<AMessage> &notify);
 
     void signalError(
             OMX_ERRORTYPE error = OMX_ErrorUndefined,
             status_t internalError = UNKNOWN_ERROR);
 
     status_t requestIDRFrame();
-    virtual status_t setParameters(const sp<AMessage> &params);
+    status_t setParameters(const sp<AMessage> &params);
 
     // set vendor extension parameters specified in params that are supported by the codec
     status_t setVendorParameters(const sp<AMessage> &params);
@@ -574,16 +571,6 @@ protected:
 
     // Send EOS on input stream.
     void onSignalEndOfInputStream();
-
-    virtual void setBFrames(OMX_VIDEO_PARAM_MPEG4TYPE *mpeg4type) {}
-    virtual void setBFrames(OMX_VIDEO_PARAM_AVCTYPE *h264type,
-        const int32_t iFramesInterval, const int32_t frameRate) {}
-
-    virtual status_t getVQZIPInfo(const sp<AMessage> &msg) {
-        return OK;
-    }
-
-    sp<IOMXObserver> createObserver();
 
     // Force EXEC->IDLE->LOADED shutdown sequence if not stale.
     void forceStateTransition(int generation);

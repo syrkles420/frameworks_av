@@ -19,7 +19,6 @@
 #include <inttypes.h>
 #include <utils/Log.h>
 
-#include <inttypes.h>
 #include "WebmWriter.h"
 #include "StagefrightRecorder.h"
 
@@ -59,7 +58,6 @@
 #include <system/audio.h>
 
 #include "ARTPWriter.h"
-#include <stagefright/AVExtensions.h>
 
 namespace android {
 
@@ -492,7 +490,7 @@ status_t StagefrightRecorder::setParamAudioSamplingRate(int32_t sampleRate) {
 
 status_t StagefrightRecorder::setParamAudioNumberOfChannels(int32_t channels) {
     ALOGV("setParamAudioNumberOfChannels: %d", channels);
-    if (channels <= 0 || channels > 6) {
+    if (channels <= 0 || channels >= 3) {
         ALOGE("Invalid number of audio channels: %d", channels);
         return BAD_VALUE;
     }
@@ -545,39 +543,40 @@ status_t StagefrightRecorder::setParamVideoRotation(int32_t degrees) {
 }
 
 status_t StagefrightRecorder::setParamMaxFileDurationUs(int64_t timeUs) {
-    ALOGV("setParamMaxFileDurationUs: %" PRId64 " us", timeUs);
+    ALOGV("setParamMaxFileDurationUs: %lld us", (long long)timeUs);
 
     // This is meant for backward compatibility for MediaRecorder.java
     if (timeUs <= 0) {
-        ALOGW("Max file duration is not positive: %" PRId64 " us. Disabling duration limit.", timeUs);
+        ALOGW("Max file duration is not positive: %lld us. Disabling duration limit.",
+                (long long)timeUs);
         timeUs = 0; // Disable the duration limit for zero or negative values.
     } else if (timeUs <= 100000LL) {  // XXX: 100 milli-seconds
-        ALOGE("Max file duration is too short: %" PRId64 " us", timeUs);
+        ALOGE("Max file duration is too short: %lld us", (long long)timeUs);
         return BAD_VALUE;
     }
 
     if (timeUs <= 15 * 1000000LL) {
-        ALOGW("Target duration (%" PRId64 " us) too short to be respected", timeUs);
+        ALOGW("Target duration (%lld us) too short to be respected", (long long)timeUs);
     }
     mMaxFileDurationUs = timeUs;
     return OK;
 }
 
 status_t StagefrightRecorder::setParamMaxFileSizeBytes(int64_t bytes) {
-    ALOGV("setParamMaxFileSizeBytes: %" PRId64 " bytes", bytes);
+    ALOGV("setParamMaxFileSizeBytes: %lld bytes", (long long)bytes);
 
     // This is meant for backward compatibility for MediaRecorder.java
     if (bytes <= 0) {
-        ALOGW("Max file size is not positive: %" PRId64 " bytes. "
-             "Disabling file size limit.", bytes);
+        ALOGW("Max file size is not positive: %lld bytes. "
+             "Disabling file size limit.", (long long)bytes);
         bytes = 0; // Disable the file size limit for zero or negative values.
     } else if (bytes <= 1024) {  // XXX: 1 kB
-        ALOGE("Max file size is too small: %" PRId64 " bytes", bytes);
+        ALOGE("Max file size is too small: %lld bytes", (long long)bytes);
         return BAD_VALUE;
     }
 
     if (bytes <= 100 * 1024) {
-        ALOGW("Target file size (%" PRId64 " bytes) is too small to be respected", bytes);
+        ALOGW("Target file size (%lld bytes) is too small to be respected", (long long)bytes);
     }
 
     mMaxFileSizeBytes = bytes;
@@ -629,9 +628,9 @@ status_t StagefrightRecorder::setParamVideoCameraId(int32_t cameraId) {
 }
 
 status_t StagefrightRecorder::setParamTrackTimeStatus(int64_t timeDurationUs) {
-    ALOGV("setParamTrackTimeStatus: %" PRId64 "", timeDurationUs);
+    ALOGV("setParamTrackTimeStatus: %lld", (long long)timeDurationUs);
     if (timeDurationUs < 20000) {  // Infeasible if shorter than 20 ms?
-        ALOGE("Tracking time duration too short: %" PRId64 " us", timeDurationUs);
+        ALOGE("Tracking time duration too short: %lld us", (long long)timeDurationUs);
         return BAD_VALUE;
     }
     mTrackEveryTimeDurationUs = timeDurationUs;
@@ -939,10 +938,8 @@ status_t StagefrightRecorder::prepareInternal() {
             break;
 
         default:
-            if (handleCustomRecording() != OK) {
-                ALOGE("Unsupported output file format: %d", mOutputFormat);
-                status = UNKNOWN_ERROR;
-            }
+            ALOGE("Unsupported output file format: %d", mOutputFormat);
+            status = UNKNOWN_ERROR;
             break;
     }
 
@@ -1015,10 +1012,8 @@ status_t StagefrightRecorder::start() {
 
         default:
         {
-            if (handleCustomOutputFormats() != OK) {
-                ALOGE("Unsupported output file format: %d", mOutputFormat);
-                status = UNKNOWN_ERROR;
-            }
+            ALOGE("Unsupported output file format: %d", mOutputFormat);
+            status = UNKNOWN_ERROR;
             break;
         }
     }
@@ -1066,7 +1061,8 @@ sp<MediaCodecSource> StagefrightRecorder::createAudioSource() {
         }
     }
 
-    sp<AudioSource> audioSource = AVFactory::get()->createAudioSource(
+    sp<AudioSource> audioSource =
+        new AudioSource(
                 mAudioSource,
                 mOpPackageName,
                 sourceSampleRate,
@@ -1105,10 +1101,8 @@ sp<MediaCodecSource> StagefrightRecorder::createAudioSource() {
             break;
 
         default:
-            if (handleCustomAudioSource(format) != OK) {
-                ALOGE("Unknown audio encoder: %d", mAudioEncoder);
-                return NULL;
-            }
+            ALOGE("Unknown audio encoder: %d", mAudioEncoder);
+            return NULL;
     }
 
     int32_t maxInputSize;
@@ -1184,24 +1178,13 @@ status_t StagefrightRecorder::setupRawAudioRecording() {
     }
 
     sp<MediaCodecSource> audioEncoder = createAudioSource();
-    if (audioEncoder != NULL) {
-        CHECK(mWriter != 0);
-        mWriter->addSource(audioEncoder);
-        mAudioEncoderSource = audioEncoder;
-    } else if (audioEncoder == NULL && mAudioEncoder == AUDIO_ENCODER_LPCM) {
-        sp<MediaSource> src;
-        src = setPCMRecording();
-        if (src == NULL) {
-            ALOGE("Recording source is null");
-            return BAD_VALUE;
-        }
-        CHECK(mWriter != 0);
-        mWriter->addSource(src);
-    }
-    else if (audioEncoder == NULL) {
+    if (audioEncoder == NULL) {
         return UNKNOWN_ERROR;
     }
 
+    CHECK(mWriter != 0);
+    mWriter->addSource(audioEncoder);
+    mAudioEncoderSource = audioEncoder;
 
     if (mMaxFileDurationUs != 0) {
         mWriter->setMaxFileDuration(mMaxFileDurationUs);
@@ -1589,18 +1572,17 @@ status_t StagefrightRecorder::setupCameraSource(
             return BAD_VALUE;
         }
 
-        mCameraSourceTimeLapse = AVFactory::get()->CreateCameraSourceTimeLapseFromCamera(
+        mCameraSourceTimeLapse = CameraSourceTimeLapse::CreateFromCamera(
                 mCamera, mCameraProxy, mCameraId, mClientName, mClientUid, mClientPid,
                 videoSize, mFrameRate, mPreviewSurface,
                 std::llround(1e6 / mCaptureFps));
         *cameraSource = mCameraSourceTimeLapse;
     } else {
-        *cameraSource = AVFactory::get()->CreateCameraSourceFromCamera(
+        *cameraSource = CameraSource::CreateFromCamera(
                 mCamera, mCameraProxy, mCameraId, mClientName, mClientUid, mClientPid,
                 videoSize, mFrameRate,
                 mPreviewSurface);
     }
-    AVUtils::get()->cacheCaptureBuffers(mCamera, mVideoEncoder);
     mCamera.clear();
     mCameraProxy.clear();
     if (*cameraSource == NULL) {
@@ -1696,8 +1678,6 @@ status_t StagefrightRecorder::setupVideoEncoder(
             format->setDouble("time-lapse-fps", mCaptureFps);
         }
     }
-
-    setupCustomVideoEncoderParams(cameraSource, format);
 
     format->setInt32("bitrate", mVideoBitRate);
     format->setInt32("frame-rate", mFrameRate);
@@ -1802,10 +1782,8 @@ status_t StagefrightRecorder::setupAudioEncoder(const sp<MediaWriter>& writer) {
             break;
 
         default:
-            if (handleCustomAudioEncoder() != OK) {
-                ALOGE("Unsupported audio encoder: %d", mAudioEncoder);
-                return UNKNOWN_ERROR;
-            }
+            ALOGE("Unsupported audio encoder: %d", mAudioEncoder);
+            return UNKNOWN_ERROR;
     }
 
     sp<MediaCodecSource> audioEncoder = createAudioSource();
@@ -1828,7 +1806,7 @@ status_t StagefrightRecorder::setupMPEG4orWEBMRecording() {
     if (mOutputFormat == OUTPUT_FORMAT_WEBM) {
         writer = new WebmWriter(mOutputFd);
     } else {
-        writer = mp4writer = AVFactory::get()->CreateMPEG4Writer(mOutputFd);
+        writer = mp4writer = new MPEG4Writer(mOutputFd);
     }
 
     if (mVideoSource < VIDEO_SOURCE_LIST_END) {

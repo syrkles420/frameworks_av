@@ -40,12 +40,10 @@ public:
     {
     }
 
-    virtual sp<IMediaExtractor> makeExtractor(const sp<IDataSource> &source, const char *mime,
-                                              const uint32_t extFlags) {
+    virtual sp<IMediaExtractor> makeExtractor(const sp<IDataSource> &source, const char *mime) {
         Parcel data, reply;
         data.writeInterfaceToken(IMediaExtractorService::getInterfaceDescriptor());
         data.writeStrongBinder(IInterface::asBinder(source));
-        data.writeUint32(extFlags);
         if (mime != NULL) {
             data.writeCString(mime);
         }
@@ -94,10 +92,8 @@ status_t BnMediaExtractorService::onTransact(
             // for MediaBuffers for this process.
             MediaBuffer::useSharedMemory();
             sp<IDataSource> source = interface_cast<IDataSource>(b);
-            uint32_t extFlags;
-            data.readUint32(&extFlags);
             const char *mime = data.readCString();
-            sp<IMediaExtractor> ex = makeExtractor(source, mime, extFlags);
+            sp<IMediaExtractor> ex = makeExtractor(source, mime);
             reply->writeStrongBinder(IInterface::asBinder(ex));
             return NO_ERROR;
         }

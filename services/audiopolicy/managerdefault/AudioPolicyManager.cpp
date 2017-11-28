@@ -4594,7 +4594,7 @@ void AudioPolicyManager::checkOutputForStrategy(routing_strategy strategy)
 {
     audio_devices_t oldDevice = getDeviceForStrategy(strategy, true /*fromCache*/);
     audio_devices_t newDevice = getDeviceForStrategy(strategy, false /*fromCache*/);
-    SortedVector<audio_io_handle_t> srcOutputs = getOutputsForDevice(oldDevice, mOutputs);
+    SortedVector<audio_io_handle_t> srcOutputs = getOutputsForDevice(oldDevice, mPreviousOutputs);
     SortedVector<audio_io_handle_t> dstOutputs = getOutputsForDevice(newDevice, mOutputs);
 
     // also take into account external policy-related changes: add all outputs which are
@@ -5310,25 +5310,7 @@ sp<IOProfile> AudioPolicyManager::getInputProfile(audio_devices_t device,
                                              &format /*updatedFormat*/,
                                              channelMask,
                                              &channelMask /*updatedChannelMask*/,
-                                             (audio_output_flags_t) flags,
-                                             true)) {
-
-                return profile;
-            }
-        }
-
-        for (size_t j = 0; j < mHwModules[i]->mInputProfiles.size(); j++)
-        {
-            sp<IOProfile> profile = mHwModules[i]->mInputProfiles[j];
-            // profile->log();
-            if (profile->isCompatibleProfile(device, address, samplingRate,
-                                             &samplingRate /*updatedSamplingRate*/,
-                                             format,
-                                             &format /*updatedFormat*/,
-                                             channelMask,
-                                             &channelMask /*updatedChannelMask*/,
-                                             (audio_output_flags_t) flags,
-                                              false)) {
+                                             (audio_output_flags_t) flags)) {
 
                 return profile;
             }

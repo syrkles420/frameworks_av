@@ -94,11 +94,9 @@ public:
     // parameters are input|output, returned value is the best match.
     status_t checkCompatibleAudioProfile(uint32_t &samplingRate,
                                          audio_channel_mask_t &channelMask,
-                                         audio_format_t &format,
-                                         bool checkExactFormat) const
+                                         audio_format_t &format) const
     {
-        return mProfiles.checkCompatibleProfile(samplingRate, channelMask, format, mType,
-                                                  mRole, checkExactFormat);
+        return mProfiles.checkCompatibleProfile(samplingRate, channelMask, format, mType, mRole);
     }
 
     void clearAudioProfiles() { return mProfiles.clearProfiles(); }

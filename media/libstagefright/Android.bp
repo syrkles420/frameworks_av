@@ -68,7 +68,6 @@ cc_library_shared {
     ],
 
     include_dirs: [
-	    "frameworks/av/media/libavextensions",
         "frameworks/native/include/media/openmax",
         "frameworks/native/include/media/hardware",
     ],
@@ -124,7 +123,7 @@ cc_library_shared {
         "libstagefright_id3",
         "libFLAC",
     ],
-	
+
     export_shared_lib_headers: ["libmedia"],
     export_include_dirs: [
         ".",

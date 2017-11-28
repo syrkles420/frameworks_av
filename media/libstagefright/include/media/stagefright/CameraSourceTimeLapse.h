@@ -20,7 +20,6 @@
 
 #include <pthread.h>
 
-#include <media/stagefright/CameraSource.h>
 #include <utils/RefBase.h>
 #include <utils/threads.h>
 #include <utils/String16.h>
@@ -61,7 +60,7 @@ public:
     // returning quickly.
     void startQuickReadReturns();
 
-protected:
+private:
     // size of the encoded video.
     int32_t mVideoWidth;
     int32_t mVideoHeight;
@@ -183,7 +182,7 @@ protected:
     // the frame needs to be encoded, it returns false and also modifies
     // the time stamp to be one frame time ahead of the last encoded
     // frame's time stamp.
-    virtual bool skipFrameAndModifyTimeStamp(int64_t *timestampUs);
+    bool skipFrameAndModifyTimeStamp(int64_t *timestampUs);
 
     // Wrapper to enter threadTimeLapseEntry()
     static void *ThreadTimeLapseWrapper(void *me);

@@ -60,7 +60,6 @@
 
 #include "ESDS.h"
 #include <media/stagefright/Utils.h>
-#include "mediaplayerservice/AVNuExtensions.h"
 
 namespace android {
 
@@ -230,7 +229,7 @@ void NuPlayer::setDataSourceAsync(const sp<IStreamSource> &source) {
     mDataSourceType = DATA_SOURCE_TYPE_STREAM;
 }
 
-bool NuPlayer::IsHTTPLiveURL(const char *url) {
+static bool IsHTTPLiveURL(const char *url) {
     if (!strncasecmp("http://", url, 7)
             || !strncasecmp("https://", url, 8)
             || !strncasecmp("file://", url, 7)) {
@@ -1524,7 +1523,7 @@ void NuPlayer::onStart(int64_t startPositionUs, MediaPlayerSeekMode mode) {
     sp<AMessage> notify = new AMessage(kWhatRendererNotify, this);
     ++mRendererGeneration;
     notify->setInt32("generation", mRendererGeneration);
-    mRenderer = AVNuFactory::get()->createRenderer(mAudioSink, notify, flags);
+    mRenderer = new Renderer(mAudioSink, notify, flags);
     mRendererLooper = new ALooper;
     mRendererLooper->setName("NuPlayerRenderer");
     mRendererLooper->start(false, false, ANDROID_PRIORITY_AUDIO);
@@ -1806,13 +1805,12 @@ status_t NuPlayer::instantiateDecoder(
 
             const bool hasVideo = (mSource->getFormat(false /*audio */) != NULL);
             format->setInt32("has-video", hasVideo);
-            *decoder = AVNuFactory::get()->createPassThruDecoder(notify, mSource, mRenderer);
-            ALOGV("instantiateDecoder audio DecoderPassThrough hasVideo: %d", hasVideo);
+            *decoder = new DecoderPassThrough(notify, mSource, mRenderer);
+            ALOGV("instantiateDecoder audio DecoderPassThrough  hasVideo: %d", hasVideo);
         } else {
-            AVNuUtils::get()->setCodecOutputFormat(format);
             mSource->setOffloadAudio(false /* offload */);
 
-            *decoder = AVNuFactory::get()->createDecoder(notify, mSource, mPID, mUID, mRenderer);
+            *decoder = new Decoder(notify, mSource, mPID, mUID, mRenderer);
             ALOGV("instantiateDecoder audio Decoder");
         }
         mAudioDecoderError = false;

@@ -120,6 +120,7 @@ protected:
 
     virtual void onMessageReceived(const sp<AMessage> &msg);
 
+private:
     friend struct PlaylistFetcher;
 
     enum {

@@ -18,7 +18,6 @@
 #define LOG_TAG "MediaRecorderService"
 #include <utils/Log.h>
 
-#include <inttypes.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -40,7 +39,6 @@
 
 #include "StagefrightRecorder.h"
 #include <gui/IGraphicBufferProducer.h>
-#include "mediaplayerservice/AVMediaServiceExtensions.h"
 
 namespace android {
 
@@ -350,7 +348,7 @@ MediaRecorderClient::MediaRecorderClient(const sp<MediaPlayerService>& service, 
 {
     ALOGV("Client constructor");
     mPid = pid;
-    mRecorder = AVMediaServiceFactory::get()->createStagefrightRecorder(opPackageName);
+    mRecorder = new StagefrightRecorder(opPackageName);
     mMediaPlayerService = service;
 }
 

@@ -205,15 +205,14 @@ cc_library_shared {
         "android.hidl.memory@1.0",
     ],
 
+    // for memory heap analysis
     static_libs: [
         "libc_malloc_debug_backtrace",
-		"libavmediaextentions",
     ],
-	
+
     include_dirs: [
         "frameworks/native/include/media/openmax",
         "frameworks/av/include/media/",
-		"frameworks/av/media/libavextensions",
         "frameworks/av/media/libstagefright",
     ],
 

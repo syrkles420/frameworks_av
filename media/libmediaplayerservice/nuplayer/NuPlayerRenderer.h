@@ -110,6 +110,7 @@ protected:
 
     virtual void onMessageReceived(const sp<AMessage> &msg);
 
+private:
     enum {
         kWhatDrainAudioQueue     = 'draA',
         kWhatDrainVideoQueue     = 'draV',

@@ -50,6 +50,7 @@ protected:
     virtual ~ARTSPConnection();
     virtual void onMessageReceived(const sp<AMessage> &msg);
 
+private:
     enum State {
         DISCONNECTED,
         CONNECTING,

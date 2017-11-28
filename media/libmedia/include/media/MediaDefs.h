@@ -75,7 +75,6 @@ enum AudioEncoding {
     kAudioEncodingPcm16bit = 2,
     kAudioEncodingPcm8bit = 3,
     kAudioEncodingPcmFloat = 4,
-    kAudioEncodingPcm24bitPacked = 100,
 };
 
 }  // namespace android
