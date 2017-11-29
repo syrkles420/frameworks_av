@@ -39,6 +39,7 @@ cc_library_shared {
         // Source for camera interface parcelables, and manually-written interfaces
         "Camera.cpp",
         "CameraMetadata.cpp",
+        "CameraParameters.cpp",
         "CaptureResult.cpp",
         "CameraParameters2.cpp",
         "ICamera.cpp",
